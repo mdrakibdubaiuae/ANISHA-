@@ -1,61 +1,154 @@
-const fs = require("fs-extra");
-const request = require("request");
+const moment = require("moment-timezone");
+const axios = require("axios");
+const fs = require("fs");
 const path = require("path");
 
 module.exports = {
   config: {
     name: "owner",
-    version: "1.3.0",
-    author: "亗•𝘔𝘈𝘔𝘜𝘕✿᭄",
+    aliases: ["admin", "intro", "contact"],
+    version: "4.0.0",
+    author: "MR_FARHAN",
     role: 0,
-    shortDescription: "Owner information with image",
-    category: "Information",
-    guide: {
-      en: "owner"
-    }
+    countDown: 5,
+    shortDescription: {
+      en: "Owner Information"
+    },
+    category: "owner"
   },
 
-  onStart: async function ({ api, event }) {
-    const ownerText = 
-`╭─ 👑 Oᴡɴᴇʀ Iɴғᴏ 👑 ─╮
-│ 👤 Nᴀᴍᴇ       :
- 亗ARIFUL ISLAM
-│🧸 Nɪᴄᴋ       :
-  ARIFUL
-│ 🎂 Aɢᴇ        :
- 18+
-│ 💘 Rᴇʟᴀᴛɪᴏɴ :
- Sɪɴɢʟᴇ
-│ 🎓 Pʀᴏғᴇssɪᴏɴ :
- Sᴛᴜᴅᴇɴᴛ 
-│ 🏡 Lᴏᴄᴀᴛɪᴏɴ :
- MANIKGONJ  
-├─ 🔗 Cᴏɴᴛᴀᴄᴛ ─╮
-│ 📞 WhatsApp  :
- wa.me/+96599894039
-╰────────────────╯`;
+  onStart: async function ({ api, event, usersData, threadsData, message }) {
+    try {
 
-    const cacheDir = path.join(__dirname, "cache");
-    const imgPath = path.join(cacheDir, "owner.jpg");
+      // ===== OWNER INFO =====
+      const ownerName = "ꪶℜaͥkiͣbͫ༆çtg ";
+      const ownerNick = "ꪶℜaͥkiͣbͫ༆ ";
+      const ownerAge = "24+";
+      const ownerFrom = "Citagong";
+      const ownerUID = "61584866024929";
 
-    if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir);
+      // ===== CONTACT =====
+      const facebook = "https://www.facebook.com/profile.php?id=61584866024929";
+      const whatsapp = "wa.me/+971508173692";
+      const telegram = "t.me/Rakibctg112233";
+      const youtube = "youtube.com/@munna-vai-mbs";
 
-    const imgLink = "https://i.imgur.com/jHK8K7C.jpeg";
+      // ===== BOT INFO =====
+      const botName = global.GoatBot?.config?.nickNameBot || "─꯭𓆩»‌‌𝆠꯭፝֟𝐒𝐈𝐙𝐔𝐊𝐀𝆠꯭፝֟𓆩𝆠፝𝐁𝐀𝐁𝐘𝆠꯭፝֟𝆠꯭፝֟𓆪";
+      const prefix = global.GoatBot?.config?.prefix || "/";
+      const totalCommands = global.GoatBot?.commands?.size || 0;
 
-    const send = () => {
-      api.sendMessage(
-        {
-          body: ownerText,
-          attachment: fs.createReadStream(imgPath)
-        },
-        event.threadID,
-        () => fs.unlinkSync(imgPath),
-        event.messageID
-      );
-    };
+      // ===== USERS & GROUPS =====
+      const allUsers = await usersData.getAll();
+      const allThreads = await threadsData.getAll();
 
-    request(encodeURI(imgLink))
-      .pipe(fs.createWriteStream(imgPath))
-      .on("close", send);
+      const totalUsers = allUsers.length;
+      const totalGroups = allThreads.length;
+
+      // ===== UPTIME =====
+      const uptime = process.uptime();
+
+      const days = Math.floor(uptime / 86400);
+      const hours = Math.floor((uptime % 86400) / 3600);
+      const minutes = Math.floor((uptime % 3600) / 60);
+      const seconds = Math.floor(uptime % 60);
+
+      const uptimeText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+      // ===== TIME =====
+      const now = moment().tz("Asia/Dhaka");
+      const time = now.format("hh:mm:ss A");
+      const date = now.format("DD/MM/YYYY");
+
+      // ===== CACHE =====
+      const cacheDir = path.join(__dirname, "cache");
+
+      if (!fs.existsSync(cacheDir)) {
+        fs.mkdirSync(cacheDir, { recursive: true });
+      }
+
+      const videoPath = path.join(cacheDir, "owner.mp4");
+
+      // ===== VIDEO URL =====
+      const videoUrl = "https://files.catbox.moe/m8hf7a.mp4";
+
+      // ===== DOWNLOAD VIDEO =====
+      const response = await axios({
+        url: videoUrl,
+        method: "GET",
+        responseType: "stream"
+      });
+
+      const writer = fs.createWriteStream(videoPath);
+
+      response.data.pipe(writer);
+
+      await new Promise((resolve, reject) => {
+        writer.on("finish", resolve);
+        writer.on("error", reject);
+      });
+
+      // ===== MESSAGE =====
+      const msg = `
+╔═══✦══════════✦═══╗
+║  🤖「 𝐎𝐖𝐍𝐄𝐑 𝐏𝐀𝐍𝐄𝐋 」🤖 ║         
+╚═══✦══════════✦═══╝
+
+┏━━━━━━━━━━━━━━━━━━┓
+┃ 👑 𝙽𝙰𝙼𝙴: ${ownerName}
+┃ 💎 𝙽𝙸𝙲𝙺: ${ownerNick}
+┃ 🎂 𝙰𝙶𝙴: ${ownerAge}
+┃ 📍 𝙵𝚁𝙾𝙼: ${ownerFrom}
+┃ 🆔 𝚄𝙸𝙳: ${ownerUID}
+┃ 🟢 𝙰𝙲𝚃𝙸𝚅𝙴「 24/7 」
+┗━━━━━━━━━━━━━━━━━━┛
+
+╭──── 📱 𝙲𝙾𝙽𝚃𝙰𝙲𝚃 𝙼𝙴 ────╮
+│ 🌐 𝙵𝙰𝙲𝙴𝙱𝙾𝙾𝙺
+│ └─ ${facebook}
+│ 💬 𝚆𝙷𝙰𝚃𝚂𝙰𝙿𝙿
+│ └─ ${whatsapp}
+│ ✈️ 𝚃𝙴𝙻𝙴𝙶𝚁𝙰𝙼
+│ └─ ${telegram}
+│ ▶️ 𝚈𝙾𝚄𝚃𝚄𝙱𝙴
+│ └─ ${youtube}
+╰───────────────────╯
+
+╭─── 🤖 𝙱𝙾𝚃 𝙳𝙴𝚃𝙰𝙸𝙻𝚂 ───╮
+│ ⚡ 𝙽𝙰𝙼𝙴: ${botName}
+│ ⏰ 𝚄𝙿𝚃𝙸𝙼𝙴: ${uptimeText}
+│ 👥 𝚄𝚂𝙴𝚁𝚂:「 ${totalUsers} 」
+│ 💬 𝙶𝚁𝙾𝚄𝙿𝚂:「 ${totalGroups} 」
+│ 📦 𝙲𝙼𝙳𝚂:「 ${totalCommands} 」
+│ 🔰 𝙿𝚁𝙴𝙵𝙸𝚇:「 ${prefix} 」
+╰───────────────────╯
+
+╭───── 📅 𝚃𝙸𝙼𝙴 ─────╮
+│ 🗓️ 𝙳𝙰𝚃𝙴: ${date}
+│ ⏰ 𝚃𝙸𝙼𝙴: ${time}
+╰────────────────╯
+
+╔═══✦══════════✦═══╗
+║   💝 𝚃𝙷𝙰𝙽𝙺𝚂 𝙵𝙾𝚁 𝚄𝚂𝙸𝙽𝙶 💝  ║
+╚═══✦══════════✦═══╝
+`;
+
+      await message.reply({
+        body: msg,
+        attachment: fs.createReadStream(videoPath)
+      });
+
+      // ===== DELETE VIDEO =====
+      setTimeout(() => {
+        if (fs.existsSync(videoPath)) {
+          fs.unlinkSync(videoPath);
+        }
+      }, 10000);
+
+    } catch (err) {
+      console.log(err);
+
+      return message.reply("❌ | Owner command error.");
+    }
   }
 };
