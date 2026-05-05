@@ -2,8 +2,8 @@ const axios = require("axios");
 
 const mahmud = [
         "বট",
-        "Sizu",
-        "sizu",
+        "bot",
+        "bot",
         "baby",
         "bby",
         "সিজু",
@@ -14,7 +14,7 @@ const mahmud = [
         "জানু",
         "বেবি",
         "sizuka",
-        "Sizuka"
+        "hi"
        ];
 
 const baseApiUrl = async () => {
