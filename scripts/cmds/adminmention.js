@@ -1,39 +1,88 @@
+const axios = require("axios");
+
+let videoIndex = 0;
+
 module.exports = {
   config: {
     name: "adminmention",
-    version: "1.3.2",
-    author: "MOHAMMAD AKASH",
+    version: "21.0.0",
+    author: "Farhan-Khan",
     countDown: 0,
     role: 0,
-    shortDescription: "Replies angrily when someone tags admins",
-    longDescription: "If anyone mentions an admin, bot will angrily reply with random messages.",
+    shortDescription: "Fast caption + video reply",
     category: "system"
   },
 
   onStart: async function () {},
 
   onChat: async function ({ event, message }) {
-    const adminIDs = ["61579497520002", "100082903073384", "61579497520002"].map(String);
+    // 🔒 Author lock
+    if (this.config.author !== "Farhan-Khan") return;
 
-    // Skip if sender is admin
-    if (adminIDs.includes(String(event.senderID))) return;
-
-    // যদি কেউ মেনশন দেয়
-    const mentionedIDs = event.mentions ? Object.keys(event.mentions).map(String) : [];
-    const isMentioningAdmin = adminIDs.some(id => mentionedIDs.includes(id));
-
-    if (!isMentioningAdmin) return;
-
-    // র‍্যান্ডম রাগী রিপ্লাই
-    const REPLIES = [
-      " বস কে মেনশন দিলে তোর নানির খালি ঘর 😩🐸",
-      "বস এক আবাল তুমারে ডাকতেছে 😂😏",
-      " বুকাচুদা তুই মেনশন দিবি না আমার বস রে 🥹",
-      "মেনশন দিছস আর বেচে যাবি? দারা বলতাছি 😠",
-      "Boss এখন বিজি আছে 😌🥱"
+    const admins = [
+      { uid: "61573366160918", names: ["RAKIB"] },
+      { uid: "61584866024929", names: ["ヽ｟ᏟᎬϴ｠▁▁ዐዐዐ 🙁😚☺️👿"] }
     ];
 
-    const randomReply = REPLIES[Math.floor(Math.random() * REPLIES.length)];
-    return message.reply(randomReply);
+    const senderID = String(event.senderID);
+    if (admins.some(a => a.uid === senderID)) return;
+
+    const text = (event.body || "").toLowerCase();
+    const mentionedIDs = event.mentions ? Object.keys(event.mentions) : [];
+
+    const isMentioning = admins.some(admin =>
+      mentionedIDs.includes(admin.uid) ||
+      admin.names.some(name => text.includes(name.toLowerCase()))
+    );
+
+    if (!isMentioning) return;
+
+    // 🎬 Video list
+    const videos = [
+      "https://i.imgur.com/WWVtoo4.mp4",
+"https://i.imgur.com/f0My6BX.mp4",
+"https://i.imgur.com/Qe286eM.mp4"
+    ];
+
+    const videoUrl = videos[videoIndex];
+    videoIndex = (videoIndex + 1) % videos.length;
+
+    // ✍️ captions
+    const captions = [
+      "Mantion_দিস না _RAKIB বস এর মন ভালো নেই আজকে 💔🥀",
+      "আমার বস RAKIB এখন বিজি আছে 😒",
+      "বস ফ্রি হলে রিপ্লাই দিবে 🧡😁",
+      "বস কে এত মেনশন না দিয়ে ইনবক্স আসো 😏",
+      "RĀKÍB বস এখন বিজি, যা বলার আমাকে বলো 😼",
+      "মেনশন না দিয়ে বস কে একটা জি এফ দে 😑"
+    ];
+
+    const mentionNames = mentionedIDs.map(id => `@${id}`).join(", ");
+
+    const caption = `
+✿•≫───────────────≪•✿
+『 ${captions[Math.floor(Math.random() * captions.length)]} 』
+✿•≫───────────────≪•✿
+`;
+
+    try {
+      // ⚡ Fast Video Fetch
+      const videoStream = await axios({
+        url: videoUrl,
+        method: "GET",
+        responseType: "stream",
+        timeout: 10000,
+        headers: { "User-Agent": "Mozilla/5.0" }
+      });
+
+      await message.reply({
+        body: caption,
+        attachment: videoStream.data
+      });
+
+    } catch (err) {
+      console.log("❌ Video error:", err.message);
+      await message.reply("😢 ভিডিও দিতে পারলাম না");
+    }
   }
 };
